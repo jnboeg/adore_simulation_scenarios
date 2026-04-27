@@ -16,13 +16,14 @@ from launch_ros.actions import Node
 
 import os
 import sys
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if base_dir not in sys.path:
-    sys.path.insert(0, base_dir)
+sys.path.append(os.path.dirname(__file__)) # this line is very importatnt to find the helper functions
 
 from position import Position
 from simulated_vehicle import create_simulated_vehicle
 from visualizer import create_visualizer
+
+start_position = Position(lat_long=(52.402773, 10.231041), psi=-3.0)
+goal_position = Position(lat_long=(52.401652, 10.224147), psi=0.0)
 
 def generate_launch_description():
     
@@ -38,10 +39,12 @@ def generate_launch_description():
 
         *create_simulated_vehicle(
             namespace="ego_vehicle",
-            start_pose=(583266.7740, 5806405.922, 2.0),
+            # start_pose_utm=(583266.7740, 5806405.922, 2.0),
+            start_pose_utm=start_position.get_utm_coordinates(),
+            goal_position_utm=goal_position.get_utm_coordinates(),
             v2x_id=0,
             vehicle_id=111,
-            controller=1,
+            # controller=1,
             map_file="r2s_flightfield_edemissen_26022026_25832.r2sr",
         ),
     ])
