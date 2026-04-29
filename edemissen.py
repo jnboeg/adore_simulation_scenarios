@@ -22,8 +22,8 @@ from position import Position
 from simulated_rosmaster import create_simulated_vehicle
 from visualizer import create_visualizer
 
-start_position = Position(lat_long=(52.402773, 10.231041), psi=-3.0)
-goal_position = Position(lat_long=(52.401652, 10.224147), psi=0.0)
+start_position = Position(lat_long=(52.40210384485703798, 10.22701509921937557), psi=-3.0)
+goal_position = Position(lat_long=(52.40202537485703971, 10.22653251921937567), psi=0.0)
 
 def generate_launch_description():
     
