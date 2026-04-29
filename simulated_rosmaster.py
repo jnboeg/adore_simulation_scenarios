@@ -47,10 +47,10 @@ def create_simulated_vehicle(
     planner_params = {
         "dt": 0.1,
         "horizon_steps": 40,
-        "lane_error": 0.3,
+        "lane_error": 0.01,
         "long_error": 0.0,
         "speed_error": 1.0,
-        "heading_error": 0.25,
+        "heading_error": 0.05,
         "steering_angle": 1.0,
         "acceleration": 0.25,
         "max_iterations": 300,
