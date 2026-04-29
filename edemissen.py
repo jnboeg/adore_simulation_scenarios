@@ -19,7 +19,7 @@ import sys
 sys.path.append(os.path.dirname(__file__)) # this line is very importatnt to find the helper functions
 
 from position import Position
-from simulated_vehicle import create_simulated_vehicle
+from simulated_rosmaster import create_simulated_vehicle
 from visualizer import create_visualizer
 
 start_position = Position(lat_long=(52.402773, 10.231041), psi=-3.0)
