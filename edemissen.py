@@ -33,8 +33,12 @@ def generate_launch_description():
             start_pose_utm=start_position.get_utm_coordinates(),
             goal_position_utm=goal_position.get_utm_coordinates(),
             v2x_id=0,
+<<<<<<< HEAD:edemissen.py
             vehicle_id=111,
             map_file="r2s_scaled_flightfield_edemissen_27042026_25832.r2sr",
+=======
+            map_file='circle50m.xodr',
+>>>>>>> 942bb8a (updated map file for sumo test):sumo_test.launch.py
         ),
         *create_visualizer(
             whitelist=["ego_vehicle"],
