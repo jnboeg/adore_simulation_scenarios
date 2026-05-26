@@ -52,7 +52,7 @@ def generate_launch_description():
             output='screen',
             parameters=[
                {"sumo_config_file": SUMO_CONFIG_PATH},
-               {"use_gui": True}
+               {"use_gui": False} ## True is currently unsupported
             ],
         ),
     ])
