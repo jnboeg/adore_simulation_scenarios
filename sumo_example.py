@@ -27,22 +27,21 @@ goal_position  = Position(xy=(-50.0, 0.0))
 
 SOURCE_DIRECTORY = os.environ["SOURCE_DIRECTORY"]
 SUMO_CONFIG_DIRECTORY = os.environ["SUMO_CONFIG_DIRECTORY"]
-SUMO_CONFIG_FILE = os.environ["SUMO_CONFIG_FILE"]
+SUMO_CONFIG_FILE = "example_scenario/osm.sumocfg"
 SUMO_CONFIG_PATH = os.path.join(SOURCE_DIRECTORY, SUMO_CONFIG_DIRECTORY, SUMO_CONFIG_FILE)
 
 def generate_launch_description():
     return LaunchDescription([
         *create_visualizer(
             whitelist=["ego_vehicle"],
-            visualization_offset=start_position.get_utm_coordinates(),
+            visualization_offset=Position(lat_long=(52.314331, 10.53793), psi=3.14).get_utm_coordinates(),
         ),
         *create_simulated_vehicle(
             namespace="ego_vehicle",
-            start_pose_utm=start_position.get_utm_coordinates(),
-            goal_position_utm=goal_position.get_utm_coordinates(),
+            start_pose_utm=Position(lat_long=(52.314331, 10.53793), psi=3.14).get_utm_coordinates(),
+            goal_position_utm=Position(lat_long=(52.31463, 10.55909), psi=0.0).get_utm_coordinates(),
             vehicle_id=111,
-            v2x_id=0,
-            map_file='circle50m.xodr',
+            v2x_id=111,
         ),
         Node(
             package='sumo_bridge',
@@ -52,7 +51,10 @@ def generate_launch_description():
             output='screen',
             parameters=[
                {"sumo_config_file": SUMO_CONFIG_PATH},
-               {"use_gui": False} # True is currently unsupported 
+               {"use_gui": False}, # True is currently unsupported 
+               {"utm_zone": Position(lat_long=(52.314331, 10.53793), psi=3.14).get_utm_coordinates()[2]},
+               {"utm_letter": Position(lat_long=(52.314331, 10.53793), psi=3.14).get_utm_coordinates()[3]}
+
             ],
         ),
     ])
