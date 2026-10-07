@@ -31,7 +31,7 @@ vehicle_parameters_folder = os.path.abspath(os.path.join(launch_file_dir, "../as
 maps_folder = os.path.abspath(os.path.join(launch_file_dir, "../assets/tracks/"))
 odd_folder = os.path.abspath(os.path.join(launch_file_dir, "../assets/odd/"))
 
-def create_simulated_vehicle(
+def create_rosmaster(
     namespace: str,
     start_pose_utm: Tuple[float, float, int, str, float],
     goal_position_utm: Tuple[float, float, int, str, float],
@@ -42,17 +42,17 @@ def create_simulated_vehicle(
     controllable: bool = True
 ) -> List[Action]:
 
-    """Create standalone ROS 2 nodes for the simulated vehicle stack."""
+    """Create standalone ROS 2 nodes for the rosmaster stack."""
 
     planner_params = {
         "dt": 0.1,
         "horizon_steps": 40,
-        "lane_error": 0.3,
-        "long_error": 0.01,
+        "lane_error": 0.01,
+        "long_error": 0.0,
         "speed_error": 1.0,
-        "heading_error": 0.5,
+        "heading_error": 0.05,
         "steering_angle": 1.0,
-        "acceleration": 0.1,
+        "acceleration": 0.25,
         "max_iterations": 300,
         "max_ms": 80,
         "debug": 0.0,
@@ -65,9 +65,9 @@ def create_simulated_vehicle(
         "kp_x": 0.0,
         "ki_x": 0.0,
         "velocity_weight": 0.0,
-        "kp_y": 0.4,
+        "kp_y": 0.0,
         "ki_y": 0.0,
-        "heading_weight": 0.75,
+        "heading_weight": 0.0,
         "kp_omega": 0.0,
         "dt": 0.05,
         "steering_comfort": 10000.25,
@@ -75,25 +75,20 @@ def create_simulated_vehicle(
         "acceleration_threshold": 0.25,
         "velocity_threshold": 0.25,
         "constant_brake": -1.0,
-        "lookahead_time": 0.0
+        "lookahead_time": 0.15
     }
 
     return [
         Node(
-            package="simulated_vehicle",
-            executable="simulated_vehicle",
-            name="simulated_vehicle",
+            package="rosmaster_translator",
+            executable="rosmaster_translator",
+            name="rosmaster_translator",
             namespace=namespace,
             parameters=[
                 {"set_start_utm_position_x": start_pose_utm[0]},
                 {"set_start_utm_position_y": start_pose_utm[1]},
                 {"set_start_utm_zone_number": start_pose_utm[2]},
                 {"set_start_utm_zone_letter": start_pose_utm[3]},
-                {"set_start_psi": start_pose_utm[4]},
-                {"vehicle_id": vehicle_id},
-                {"v2x_id": v2x_id},
-                {"controllable": controllable},
-                {"vehicle_model_file": vehicle_parameters_folder + "/" + vehicle_parameters_file},
             ],
         ),
         Node(
