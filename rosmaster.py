@@ -47,12 +47,12 @@ def create_rosmaster(
     planner_params = {
         "dt": 0.1,
         "horizon_steps": 40,
-        "lane_error": 0.01,
-        "long_error": 0.0,
+        "lane_error": 0.3,
+        "long_error": 0.01,
         "speed_error": 1.0,
-        "heading_error": 0.05,
+        "heading_error": 0.5,
         "steering_angle": 1.0,
-        "acceleration": 0.25,
+        "acceleration": 0.1,
         "max_iterations": 300,
         "max_ms": 80,
         "debug": 0.0,
@@ -65,9 +65,9 @@ def create_rosmaster(
         "kp_x": 0.0,
         "ki_x": 0.0,
         "velocity_weight": 0.0,
-        "kp_y": 0.0,
+        "kp_y": 0.4,
         "ki_y": 0.0,
-        "heading_weight": 0.0,
+        "heading_weight": 0.75,
         "kp_omega": 0.0,
         "dt": 0.05,
         "steering_comfort": 10000.25,
@@ -75,7 +75,7 @@ def create_rosmaster(
         "acceleration_threshold": 0.25,
         "velocity_threshold": 0.25,
         "constant_brake": -1.0,
-        "lookahead_time": 0.15
+        "lookahead_time": 0.0
     }
 
     return [
