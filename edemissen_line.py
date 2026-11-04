@@ -18,14 +18,18 @@ import os
 import sys
 sys.path.append(os.path.dirname(__file__)) # this line is very importatnt to find the helper functions
 
-from position import Position
+from position import Position, Waypoint, WaypointBehavior
 from simulated_rosmaster import create_simulated_vehicle
 from visualizer import create_visualizer
 
 # start_position = Position(lat_long=(52.75083333, 11.94388889), psi=0.0)
 # goal_position = Position(lat_long=(52.75194444, 11.95111111), psi=0.0)
 start_position = Position(utm=(583469.60, 5806469.84, 32, "U"), psi=0.30)
-goal_position  = Position(utm=(583488.57, 5806475.68, 32, "U"))
+# goal_position  = Position(utm=(583488.57, 5806475.68, 32, "U"))
+
+ego_goal_positions = [
+    Waypoint(Position(utm=(583488.57, 5806475.68, 32, "U")), WaypointBehavior.STOP),
+]
 
 def generate_launch_description():
     return LaunchDescription([
@@ -33,7 +37,8 @@ def generate_launch_description():
             namespace="ego_vehicle",
             # start_pose_utm=(583266.7740, 5806405.922, 2.0),
             start_pose_utm=start_position.get_utm_coordinates(),
-            goal_position_utm=goal_position.get_utm_coordinates(),
+            # goal_position_utm=goal_position.get_utm_coordinates(),
+            goals=ego_goal_positions,
             v2x_id=0,
             vehicle_id=111,
             map_file="r2s_scaled_flightfield_edemissen_28102026_25832.r2sr",

@@ -34,7 +34,8 @@ odd_folder = os.path.abspath(os.path.join(launch_file_dir, "../assets/odd/"))
 def create_simulated_vehicle(
     namespace: str,
     start_pose_utm: Tuple[float, float, int, str, float],
-    goal_position_utm: Tuple[float, float, int, str, float],
+    # goal_position_utm: Tuple[float, float, int, str, float],
+    goals: List[Waypoint],
     vehicle_id: int,
     v2x_id: int,
     vehicle_parameters_file: str = "A1.json",
@@ -78,6 +79,9 @@ def create_simulated_vehicle(
         "lookahead_time": 0.0
     }
 
+    goal_strings = [f"{x},{y},{stop}"
+                        for x, y, stop in (wp.to_goal_tuple() for wp in goals)]
+
     return [
         Node(
             package="simulated_vehicle",
@@ -97,12 +101,13 @@ def create_simulated_vehicle(
             ],
         ),
         Node(
-            package="operational_design_domain",
-            executable="operational_design_domain",
-            name="operational_design_domain",
+            package="odd_monitor",
+            executable="odd_monitor",
+            name="odd_monitor",
             namespace=namespace,
             parameters=[
-                {"openodd_file": odd_folder + "/" + "simulation_odd.json" },
+                {"vehicle_id": v2x_id },
+                {"openodd_file": odd_folder + "/" + "simulation_odd.yaml" },
             ],
         ),
         Node(
@@ -112,8 +117,7 @@ def create_simulated_vehicle(
             namespace=namespace,
             parameters=[
                 {"map file": maps_folder + "/" + map_file},  # kept literal key as in original
-                {"goal_position_x": goal_position_utm[0]},
-                {"goal_position_y": goal_position_utm[1]},
+                {"goals": goal_strings},
                 {"local_map_size": 100.0},
                 # {"request_assistance_polygon": None},
             ],
