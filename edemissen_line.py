@@ -22,8 +22,10 @@ from position import Position
 from simulated_rosmaster import create_simulated_vehicle
 from visualizer import create_visualizer
 
-start_position = Position(lat_long=(52.40208001, 10.22688367), psi=0.0)
-goal_position = Position(lat_long=(52.40209754, 10.22698303), psi=0.0)
+# start_position = Position(lat_long=(52.75083333, 11.94388889), psi=0.0)
+# goal_position = Position(lat_long=(52.75194444, 11.95111111), psi=0.0)
+start_position = Position(utm=(583469.60, 5806469.84, 32, "U"), psi=0.30)
+goal_position  = Position(utm=(583488.57, 5806475.68, 32, "U"))
 
 def generate_launch_description():
     return LaunchDescription([
@@ -34,7 +36,7 @@ def generate_launch_description():
             goal_position_utm=goal_position.get_utm_coordinates(),
             v2x_id=0,
             vehicle_id=111,
-            map_file="r2s_scaled_flightfield_edemissen_27042026_25832.r2sr",
+            map_file="r2s_scaled_flightfield_edemissen_28102026_25832.r2sr",
         ),
         *create_visualizer(
             whitelist=["ego_vehicle"],
