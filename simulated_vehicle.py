@@ -17,6 +17,9 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from launch import Action
 from launch_ros.actions import Node
+from pathlib import Path
+
+from position import Waypoint
 
 import os
 import sys
@@ -31,15 +34,38 @@ vehicle_parameters_folder = os.path.abspath(os.path.join(launch_file_dir, "../as
 maps_folder = os.path.abspath(os.path.join(launch_file_dir, "../assets/tracks/"))
 odd_folder = os.path.abspath(os.path.join(launch_file_dir, "../assets/odd/"))
 
+_obstacle_avoidance_candidates = [
+    os.path.abspath(
+        os.path.join(
+            launch_file_dir,
+            "../../ros2_workspace/src/src/adore_ros2_nodes/decision_maker/config/obstacle_avoidance.yaml",
+        )
+    ),
+    os.path.abspath(
+        os.path.join(
+            launch_file_dir,
+            "../../ros2_workspace/src/adore_ros2_nodes/decision_maker/config/obstacle_avoidance.yaml",
+        )
+    ),
+]
+obstacle_avoidance_file = next(
+    (path for path in _obstacle_avoidance_candidates if os.path.isfile(path)),
+    _obstacle_avoidance_candidates[0],
+)
+
+
 def create_simulated_vehicle(
     namespace: str,
-    start_pose_utm: Tuple[float, float, int, str, float],
-    goal_position_utm: Tuple[float, float, int, str, float],
+    start_position_utm: Tuple[float, float, int, str, float],
+    goals: List[Waypoint],
     vehicle_id: int,
     v2x_id: int,
     vehicle_parameters_file: str = "NGC.json",
+    #vehicle_parameters_file: str = "obstacle.json",
     map_file: str = "de_bs_borders_wfs.r2sr",
-    controllable: bool = True
+    #map_file: str = "r2s_flightfield_edemissen_26022026_25832.r2sr",
+    controllable: bool = True,
+    sensor_range: float = 1000.0,
 ) -> List[Action]:
 
     """Create standalone ROS 2 nodes for the simulated vehicle stack."""
@@ -75,8 +101,11 @@ def create_simulated_vehicle(
         "acceleration_threshold": 0.25,
         "velocity_threshold": 0.25,
         "constant_brake": -1.0,
-        "lookahead_time": 0.0
+        "lookahead_time": 0.3
     }
+
+    goal_strings = [f"{x},{y},{stop}"
+                    for x, y, stop in (wp.to_goal_tuple() for wp in goals)]
 
     return [
         Node(
@@ -85,24 +114,26 @@ def create_simulated_vehicle(
             name="simulated_vehicle",
             namespace=namespace,
             parameters=[
-                {"set_start_utm_position_x": start_pose_utm[0]},
-                {"set_start_utm_position_y": start_pose_utm[1]},
-                {"set_start_utm_zone_number": start_pose_utm[2]},
-                {"set_start_utm_zone_letter": start_pose_utm[3]},
-                {"set_start_psi": start_pose_utm[4]},
+                {"set_start_utm_position_x": start_position_utm[0]},
+                {"set_start_utm_position_y": start_position_utm[1]},
+                {"set_start_utm_zone_number": start_position_utm[2]},
+                {"set_start_utm_zone_letter": start_position_utm[3]},
+                {"set_start_psi": start_position_utm[4]},
                 {"vehicle_id": vehicle_id},
                 {"v2x_id": v2x_id},
                 {"controllable": controllable},
+                {"sensor_range": sensor_range},
                 {"vehicle_model_file": vehicle_parameters_folder + "/" + vehicle_parameters_file},
             ],
         ),
         Node(
-            package="operational_design_domain",
-            executable="operational_design_domain",
-            name="operational_design_domain",
+            package="odd_monitor",
+            executable="odd_monitor",
+            name="odd_monitor",
             namespace=namespace,
             parameters=[
-                {"openodd_file": odd_folder + "/" + "simulation_odd.json" },
+                {"vehicle_id": v2x_id },
+                {"openodd_file": odd_folder + "/" + "simulation_odd.yaml" },
             ],
         ),
         Node(
@@ -112,8 +143,7 @@ def create_simulated_vehicle(
             namespace=namespace,
             parameters=[
                 {"map file": maps_folder + "/" + map_file},  # kept literal key as in original
-                {"goal_position_x": goal_position_utm[0]},
-                {"goal_position_y": goal_position_utm[1]},
+                {"goals": goal_strings},
                 {"local_map_size": 100.0},
                 # {"request_assistance_polygon": None},
             ],
@@ -124,12 +154,27 @@ def create_simulated_vehicle(
             name="decision_maker",
             namespace=namespace,
             parameters=[
+                obstacle_avoidance_file,
                 {"planner_settings_keys": list(planner_params.keys())},
                 {"planner_settings_values": list(planner_params.values())},
                 {"vehicle_model_file": vehicle_parameters_folder + "/" + vehicle_parameters_file},
                 {"v2x_id": v2x_id},
             ],
         ),
+        
+        # Node(
+        #     package="decision_maker",
+        #     executable="decision_maker",
+        #     name="decision_maker",
+        #     namespace=namespace,
+        #     parameters=[
+        #         params_file,
+        #         {"planner_settings_keys": list(planner_params.keys())},
+        #         {"planner_settings_values": list(planner_params.values())},
+        #         {"vehicle_model_file": vehicle_parameters_folder + "/" + vehicle_parameters_file},
+        #         {"v2x_id": v2x_id},
+        #     ],
+        # ),
         Node(
             package="trajectory_tracker",
             executable="trajectory_tracker",
@@ -145,4 +190,3 @@ def create_simulated_vehicle(
             ],
         ),
     ]
-
